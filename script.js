@@ -35,8 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- ゲームの状態変数 ---
     let totalPoints = 0;
-    let allQuizData = {}; // 全クイズデータ
-    let currentQuizData = []; // 現在のカテゴリのクイズデータ
+    let allQuizData = {};
+    let currentQuizData = [];
     let currentQuestionIndex = 0;
     let correctAnswersInQuiz = 0;
     let quizCategory = '';
@@ -45,10 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let timeLeft = 10;
     const QUIZ_QUESTIONS_PER_CATEGORY = 5;
     const POINTS_PER_CORRECT_ANSWER = 10;
-    const POINTS_TO_UNLOCK_MAOU = 30; // 魔王戦解放に必要なポイント
-    let clearedCategories = []; // クリアしたカテゴリを保存する配列
+    const TOTAL_CATEGORIES = 9; // 全カテゴリ数：国語、理科、社会、算数、英語、あたしんち、ドラえもん、ぼっちざロック、甘いもの
+    let clearedCategories = [];
 
-    // --- 効果音関連のパス（必要に応じて調整） ---
+    // --- 効果音関連のパス ---
     const AUDIO_PATHS = {
         field: 'audio/field.mp3',
         seikai: 'audio/seikai2.mp3',
@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ENEMY_IMAGES = {
         normal: ['images/enemy1.png', 'images/enemy2.png', 'images/enemy3.png', 'images/enemy4.png'],
         maou: 'images/maou.png',
-        hero: 'images/hero.png' // 魔王撃破時に使う勇者の画像
+        hero: 'images/hero.png'
     };
 
     // --- 画面切り替え関数 ---
@@ -79,7 +79,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- オーディオ再生関数 ---
     function playAudio(audioElement, loop = false) {
-        // 現在再生中のループ音があれば停止
         if (fieldAudio.loop && fieldAudio.currentTime > 0 && fieldAudio !== audioElement) {
             fieldAudio.pause();
             fieldAudio.currentTime = 0;
@@ -107,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- ゲームデータの保存と読み込み ---
     function saveGameData() {
         localStorage.setItem('totalPoints', totalPoints);
-        localStorage.setItem('clearedCategories', JSON.stringify(clearedCategories)); // クリアしたカテゴリを保存
+        localStorage.setItem('clearedCategories', JSON.stringify(clearedCategories));
     }
 
     function loadGameData() {
@@ -121,16 +120,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- 全カテゴリクリア判定 ---
+    function isAllCategoriesCleared() {
+        return clearedCategories.length === TOTAL_CATEGORIES;
+    }
+
     // --- メイン画面の更新 ---
     function updateMainScreen() {
         displayPoints.textContent = totalPoints;
-        const remainingPoints = POINTS_TO_UNLOCK_MAOU - totalPoints;
-        if (totalPoints >= POINTS_TO_UNLOCK_MAOU) {
+        
+        // 魔王戦ボタンの状態を更新
+        if (isAllCategoriesCleared()) {
             maouBattleBtn.disabled = false;
-            mainMessage.textContent = '魔王に挑戦できるぞ！';
+            mainMessage.textContent = '✨ 全てのカテゴリをクリアした！魔王に挑戦しよう！ ✨';
         } else {
             maouBattleBtn.disabled = true;
-            mainMessage.textContent = `あと${remainingPoints}ポイントで魔王に挑戦できるぞ！`;
+            const remaining = TOTAL_CATEGORIES - clearedCategories.length;
+            mainMessage.textContent = `あと${remaining}個のカテゴリをクリアしたら魔王に挑戦できるぞ！`;
         }
 
         // カテゴリボタンの表示更新
@@ -138,21 +144,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const category = button.dataset.category;
             if (clearedCategories.includes(category)) {
                 button.classList.add('cleared-category');
-                button.textContent = `${category} (クリア済み)`; // テキストも変更
-                button.disabled = true; // クリア済みは選択不可に
+                button.disabled = true;
             } else {
                 button.classList.remove('cleared-category');
-                button.textContent = category; // 元のテキストに戻す
-                button.disabled = false; // 未クリアは選択可能に
+                button.disabled = false;
             }
         });
 
-        playAudio(fieldAudio, true); // メイン画面ではフィールドBGM
+        playAudio(fieldAudio, true);
     }
 
     // --- ゲーム初期化 ---
     async function initializeGame() {
-        loadGameData(); // ポイントとクリアカテゴリをロード
+        loadGameData();
         if (Object.keys(allQuizData).length === 0) {
             try {
                 const response = await fetch('quizData.json');
@@ -173,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- クイズ開始 ---
     async function startQuiz(category) {
-        stopAllAudio(); // クイズ開始時にBGMを一旦停止
+        stopAllAudio();
 
         quizCategory = category;
         isMaouBattle = (category === 'Maou');
@@ -182,7 +186,6 @@ document.addEventListener('DOMContentLoaded', () => {
             enemyImage.src = ENEMY_IMAGES.maou;
             playAudio(maouAudio, true);
         } else {
-            // 通常カテゴリの場合、ランダムな敵画像
             const randomIndex = Math.floor(Math.random() * ENEMY_IMAGES.normal.length);
             enemyImage.src = ENEMY_IMAGES.normal[randomIndex];
             playAudio(sentouAudio, true);
@@ -204,14 +207,13 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // 問題をシャッフルして必要な数だけ取得
         const shuffledQuestions = [...availableQuestions].sort(() => Math.random() - 0.5);
         currentQuizData = shuffledQuestions.slice(0, QUIZ_QUESTIONS_PER_CATEGORY);
 
         currentQuestionIndex = 0;
         correctAnswersInQuiz = 0;
         quizCategoryTitle.textContent = `${quizCategory}クイズ`;
-        timeLeft = 10; // 各問題の制限時間初期化
+        timeLeft = 10;
 
         showScreen(quizScreen);
         loadQuestion();
@@ -219,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 問題を読み込む ---
     function loadQuestion() {
-        stopTimer(); // 前のタイマーを停止
+        stopTimer();
 
         if (currentQuestionIndex >= QUIZ_QUESTIONS_PER_CATEGORY) {
             endQuiz();
@@ -229,17 +231,16 @@ document.addEventListener('DOMContentLoaded', () => {
         resetOptionsStyle();
         const question = currentQuizData[currentQuestionIndex];
         
-        // questionがundefinedでないことを確認
         if (!question) {
             console.error("Error: Question is undefined at index", currentQuestionIndex);
-            endQuiz(); // 問題が読み込めない場合はクイズを終了
+            endQuiz();
             return;
         }
 
         questionText.textContent = question.question;
         question.options.forEach((option, index) => {
             optionButtons[index].textContent = option;
-            optionButtons[index].disabled = false; // ボタンを有効化
+            optionButtons[index].disabled = false;
         });
 
         currentQuestionNumSpan.textContent = currentQuestionIndex + 1;
@@ -252,7 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const question = currentQuizData[currentQuestionIndex];
         const correctAnswerIndex = question.correct;
 
-        // 全ての選択肢を無効化
         optionButtons.forEach(button => button.disabled = true);
 
         if (selectedIndex === correctAnswerIndex) {
@@ -263,16 +263,16 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             playAudio(fuseikaiAudio);
             optionButtons[selectedIndex].classList.add('wrong');
-            optionButtons[correctAnswerIndex].classList.add('correct'); // 正解を表示
+            optionButtons[correctAnswerIndex].classList.add('correct');
         }
 
-        saveGameData(); // ポイントを保存
-        updateMainScreen(); // メイン画面のポイント表示を更新
+        saveGameData();
+        updateMainScreen();
 
         setTimeout(() => {
             currentQuestionIndex++;
             loadQuestion();
-        }, 1500); // 1.5秒後に次の問題へ
+        }, 1500);
     }
 
     // --- 選択肢のスタイルをリセット ---
@@ -285,14 +285,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- タイマー機能 ---
     function startTimer() {
-        timeLeft = 10; // 各問題の時間をリセット
+        timeLeft = 10;
         timeLeftSpan.textContent = timeLeft;
         timer = setInterval(() => {
             timeLeft--;
             timeLeftSpan.textContent = timeLeft;
             if (timeLeft <= 0) {
                 clearInterval(timer);
-                handleAnswer(-1); // 時間切れの場合、不正解として処理
+                handleAnswer(-1);
             }
         }, 1000);
     }
@@ -304,51 +304,51 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- クイズ終了 ---
     function endQuiz() {
         stopTimer();
-        stopAllAudio(); // クイズ終了時にもBGMを停止
+        stopAllAudio();
 
         finalScoreSpan.textContent = totalPoints;
         correctAnswersCountSpan.textContent = correctAnswersInQuiz;
 
         if (isMaouBattle) {
-            if (correctAnswersInQuiz >= QUIZ_QUESTIONS_PER_CATEGORY) { // 魔王戦は全問正解で勝利
+            if (correctAnswersInQuiz >= QUIZ_QUESTIONS_PER_CATEGORY) {
                 showScreen(maouWinScreen);
                 mainMessage.textContent = '魔王を撃破したぞ！';
-                localStorage.setItem('maouDefeated', 'true'); // 魔王撃破状態を保存
-                playAudio(levelupAudio); // レベルアップ音を再生
+                localStorage.setItem('maouDefeated', 'true');
+                playAudio(levelupAudio);
             } else {
                 showScreen(resultScreen);
                 resultMessage.textContent = '魔王には及ばなかった...。修行を重ねてまた挑もう！';
-                playAudio(fieldAudio, true); // 敗北時はフィールドBGM
+                playAudio(fieldAudio, true);
             }
         } else {
             let message = '';
             if (correctAnswersInQuiz === QUIZ_QUESTIONS_PER_CATEGORY) {
                 message = '全問正解！素晴らしい！';
-                playAudio(levelupAudio); // レベルアップ音を再生
+                playAudio(levelupAudio);
                 // カテゴリをクリア済みにする
                 if (!clearedCategories.includes(quizCategory)) {
                     clearedCategories.push(quizCategory);
-                    saveGameData(); // クリア状態を保存
+                    saveGameData();
                 }
             } else if (correctAnswersInQuiz >= QUIZ_QUESTIONS_PER_CATEGORY / 2) {
                 message = 'よく頑張った！もう少しだ！';
-                playAudio(fieldAudio, true); // フィールドBGMに戻す
+                playAudio(fieldAudio, true);
             } else {
                 message = '残念！また挑戦して知識を深めよう！';
-                playAudio(fieldAudio, true); // フィールドBGMに戻す
+                playAudio(fieldAudio, true);
             }
             resultMessage.textContent = message;
             showScreen(resultScreen);
         }
-        updateMainScreen(); // メイン画面の表示を更新（カテゴリボタンの表示も更新される）
+        updateMainScreen();
     }
 
     // --- ポイントリセット ---
     function resetPoints() {
         if (confirm('本当にポイントをリセットしますか？')) {
             totalPoints = 0;
-            clearedCategories = []; // クリアカテゴリもリセット
-            localStorage.removeItem('maouDefeated'); // 魔王撃破状態もリセット
+            clearedCategories = [];
+            localStorage.removeItem('maouDefeated');
             saveGameData();
             updateMainScreen();
             mainMessage.textContent = 'ポイントとクリア情報がリセットされたぞ！';
@@ -372,10 +372,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     maouBattleBtn.addEventListener('click', () => {
-        if (totalPoints >= POINTS_TO_UNLOCK_MAOU) {
+        if (isAllCategoriesCleared()) {
             startQuiz('Maou');
         } else {
-            alert(`魔王に挑戦するには、あと${POINTS_TO_UNLOCK_MAOU - totalPoints}ポイント必要だ！`);
+            const remaining = TOTAL_CATEGORIES - clearedCategories.length;
+            alert(`魔王に挑戦するには、あと${remaining}個のカテゴリをクリアする必要があります！`);
         }
     });
 
@@ -391,15 +392,15 @@ document.addEventListener('DOMContentLoaded', () => {
     restartGameBtn.addEventListener('click', () => {
         if (confirm('ゲームを最初からやり直しますか？現在のポイントもリセットされます。')) {
             totalPoints = 0;
-            clearedCategories = []; // クリアカテゴリもリセット
-            localStorage.removeItem('maouDefeated'); // 魔王撃破状態もリセット
+            clearedCategories = [];
+            localStorage.removeItem('maouDefeated');
             saveGameData();
-            initializeGame(); // 全体を初期化してメイン画面へ
+            initializeGame();
         }
     });
 
     resetPointsBtn.addEventListener('click', resetPoints);
-    skipQuestionBtn.addEventListener('click', skipQuestion); // デバッグ用スキップボタン
+    skipQuestionBtn.addEventListener('click', skipQuestion);
 
     // ゲーム開始
     initializeGame();
