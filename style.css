@@ -1,73 +1,81 @@
 :root {
-    --main-bg-color: #0A0F1F; /* さらに濃い青系の背景 */
-    --panel-bg-color: rgba(10, 15, 31, 0.85); /* 透明度を少し下げて、より濃く */
-    --text-color: #E0FFFF; /* 明るいシアン系のテキスト */
-    --button-bg-color: transparent; /* ボタンの背景を透明に */
-    --button-border-color: #81E6FC; /* ボタンのボーダーカラー */
-    --button-text-color: #81E6FC; /* ボタンのテキストカラー */
-    --button-hover-bg-color: rgba(129, 230, 252, 0.25); /* ボタンホバー時の背景 */
-    --accent-color: #F980FC; /* ピンク系のアクセントカラー */
-    --cleared-category-bg-color: rgba(76, 175, 80, 0.7); /* クリア済みのカテゴリボタンの背景 */
+    --main-bg-color: #0A0F1F;
+    --panel-bg-color: rgba(10, 15, 31, 0.95);
+    --text-color: #E0FFFF;
+    --button-bg-color: rgba(129, 230, 252, 0.15);
+    --button-border-color: #81E6FC;
+    --button-text-color: #E0FFFF;
+    --button-hover-bg-color: rgba(129, 230, 252, 0.35);
+    --button-active-bg-color: rgba(129, 230, 252, 0.5);
+    --accent-color: #F980FC;
+    --cleared-category-bg-color: rgba(76, 175, 80, 0.8);
     --cleared-category-border-color: #66BB6A;
+    --quiz-element-bg-color: rgba(0, 0, 0, 0.7);
+    --quiz-border-color: #5BC0EB;
+    --option-correct-color: #00FF00;
+    --option-wrong-color: #FF4500;
+}
 
-    /* クイズ画面の要素背景 */
-    --quiz-element-bg-color: rgba(0, 0, 0, 0.6); /* より濃く、半透明な背景 */
-    --quiz-border-color: #5BC0EB; /* クイズ画面のボーダー色 */
-    --option-correct-color: #00FF00; /* 正解時の文字色 */
-    --option-wrong-color: #FF4500; /* 不正解時の文字色 */
+* {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
 }
 
 body {
-    margin: 0;
     font-family: 'DotGothic16', sans-serif;
     background-color: var(--main-bg-color);
     color: var(--text-color);
     display: flex;
-    justify-content: center; /* 水平方向中央揃え */
-    align-items: center; /* 垂直方向中央揃え */
-    min-height: 100vh; /* 画面全体の高さ */
-    padding: 10px; /* 全体のパディングを少し減らす */
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 10px;
     box-sizing: border-box;
     background-image: url('images/fi-rudo.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    overflow: hidden; /* スクロールを禁止 */
+    overflow: hidden;
 }
 
 #game-container {
     background-color: var(--panel-bg-color);
-    border: 2px solid var(--button-border-color);
-    border-radius: 10px;
-    padding: 20px; /* パディングを少し減らす */
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+    border: 3px solid var(--button-border-color);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.9), inset 0 0 20px rgba(129, 230, 252, 0.1);
     text-align: center;
-    width: 98%; /* 幅を少し広げてコンテンツを詰め込む */
+    width: 95%;
     max-width: 700px;
-    /* min-height を削除してコンテンツに合わせる */
-    height: auto; /* コンテンツに合わせて自動調整 */
+    height: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; /* 中央揃えに調整 */
+    justify-content: center;
     position: relative;
-    /* overflow-y: auto; も削除（スクロールさせないため） */
 }
 
 .screen {
     display: none;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start; /* 上から配置 */
-    height: 100%; /* 親要素の高さに合わせる */
+    justify-content: flex-start;
+    height: 100%;
     width: 100%;
-    padding: 0; /* 各スクリーンのパディングは0にして、game-containerのパディングを使う */
+    padding: 0;
     box-sizing: border-box;
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.5s ease-in-out;
-    position: absolute; /* 画面切り替えアニメーションを維持 */
+    transition: opacity 0.4s ease-in-out;
+    position: absolute;
     top: 0;
     left: 0;
 }
@@ -76,404 +84,638 @@ body {
     display: flex;
     pointer-events: auto;
     opacity: 1;
-    position: static; /* アクティブ時は静的位置に戻し、親のフローに従わせる */
-    /* これにより、game-containerの高さが適切にコンテンツにフィットします */
+    position: static;
 }
 
-/* メイン画面のスタイル */
+/* ================== メイン画面 ================== */
 #main-screen {
-    justify-content: center; /* コンテンツを垂直方向中央に */
-    flex-grow: 1; /* 残りのスペースを埋める */
-    padding-top: 10px; /* 上部に少し余白 */
-    padding-bottom: 10px; /* 下部に少し余白 */
+    justify-content: center;
+    flex-grow: 1;
+    padding: 15px 10px;
+    gap: 15px;
 }
 
 #main-screen h1 {
     color: var(--accent-color);
-    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.9);
-    font-size: 3em; /* 少し小さくして収まりやすく */
-    margin-bottom: 15px; /* 間隔を狭める */
-    white-space: nowrap;
+    text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.95), 0 0 10px rgba(249, 128, 252, 0.5);
+    font-size: clamp(2.5em, 8vw, 3.5em);
+    margin: 5px 0 10px 0;
+    letter-spacing: 2px;
+    animation: glow 2s ease-in-out infinite;
 }
 
-#main-screen h2 { /* "CHOOSE A CATEGORY" のためのスタイル */
-    color: var(--text-color);
-    font-size: 1.3em; /* 少し小さく */
-    margin-bottom: 25px;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+@keyframes glow {
+    0%, 100% { text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.95), 0 0 10px rgba(249, 128, 252, 0.5); }
+    50% { text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.95), 0 0 20px rgba(249, 128, 252, 0.8); }
 }
 
 #main-screen .current-points {
-    font-size: 1.2em; /* 少し小さく */
-    color: var(--text-color);
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-    margin-top: 10px;
-    margin-bottom: 20px;
+    font-size: clamp(1em, 4vw, 1.4em);
+    color: #FFD700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    margin: 5px 0 15px 0;
+    font-weight: bold;
 }
 
 #main-screen #main-message {
-    font-size: 1.1em; /* メッセージのフォントサイズ調整 */
+    font-size: clamp(0.9em, 3vw, 1.2em);
     color: var(--text-color);
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-    margin-top: 15px;
-    margin-bottom: 10px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    margin: 10px 0;
+    min-height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/* カテゴリ選択グリッド */
+/* ================== カテゴリグリッド ================== */
 .category-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); /* 最小幅をさらに小さく */
-    gap: 10px; /* ギャップを小さく */
-    margin-bottom: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(85px, 1fr));
+    gap: 12px;
+    margin: 15px 0;
     width: 100%;
-    max-width: 500px; /* グリッドの最大幅を少し小さく */
+    max-width: 550px;
 }
 
 .category-btn {
-    padding: 10px; /* パディングを小さく */
-    font-size: 1.1em; /* フォントサイズを小さく */
+    padding: clamp(8px, 2vw, 12px);
+    font-size: clamp(0.9em, 2.5vw, 1.15em);
     font-family: 'DotGothic16', sans-serif;
     border: 2px solid var(--button-border-color);
-    border-radius: 5px;
+    border-radius: 8px;
     background-color: var(--button-bg-color);
     color: var(--button-text-color);
     cursor: pointer;
-    transition: background-color 0.2s, color 0.2s, transform 0.1s, border-color 0.2s;
-    box-shadow: none;
-    text-align: center;
-    height: auto; /* 高さを自動調整 */
-    min-height: 70px; /* 最低高さを確保 */
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+    height: auto;
+    min-height: 65px;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    word-break: break-word;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
 }
 
-.category-btn:hover {
+.category-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    transition: left 0.3s ease;
+    z-index: -1;
+}
+
+.category-btn:hover:not(:disabled) {
     background-color: var(--button-hover-bg-color);
-    transform: translateY(-2px);
     border-color: var(--accent-color);
     color: var(--accent-color);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(129, 230, 252, 0.3);
+}
+
+.category-btn:active:not(:disabled) {
+    transform: translateY(-1px);
+    background-color: var(--button-active-bg-color);
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(129, 230, 252, 0.3);
 }
 
 .category-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    box-shadow: none;
-    border-color: var(--button-border-color);
-    color: var(--button-text-color);
 }
 
+/* ================== クリア済みボタン スタイル ================== */
 .category-btn.cleared-category {
-    background-color: var(--cleared-category-bg-color);
-    border-color: var(--cleared-category-border-color);
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.9), rgba(56, 142, 60, 0.9));
+    border: 3px solid #66BB6A;
     color: white;
+    box-shadow: 0 0 20px rgba(76, 175, 80, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.1);
     pointer-events: none;
-    opacity: 0.8;
+    position: relative;
 }
 
+/* CLEAR テキスト（斜め大きく表示） */
 .category-btn.cleared-category::after {
-    content: " (クリア済)"; /* 短縮 */
-    font-size: 0.6em; /* さらに小さく */
-    display: block;
-    margin-top: 3px; /* 間隔を狭める */
+    content: 'CLEAR';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-15deg) scale(1.5);
+    font-size: clamp(1.2em, 4vw, 1.8em);
+    font-weight: 900;
+    color: #00FF00;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 8px rgba(0, 255, 0, 0.6);
+    letter-spacing: 2px;
+    z-index: 10;
+    pointer-events: none;
+    animation: pulse-clear 1.5s ease-in-out infinite;
 }
 
-/* 魔王に挑戦ボタン */
+@keyframes pulse-clear {
+    0%, 100% {
+        transform: translate(-50%, -50%) rotate(-15deg) scale(1.5);
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 8px rgba(0, 255, 0, 0.6);
+    }
+    50% {
+        transform: translate(-50%, -50%) rotate(-15deg) scale(1.65);
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 16px rgba(0, 255, 0, 1);
+    }
+}
+
+/* ================== 魔王に挑戦ボタン ================== */
 #maou-battle-btn {
-    background-color: rgba(211, 47, 47, 0.7);
-    border-color: #E57373;
+    background: linear-gradient(135deg, rgba(211, 47, 47, 0.8), rgba(244, 67, 54, 0.8));
+    border: 2px solid #E57373;
     color: white;
-    margin-top: 20px;
-    font-size: 1.5em; /* ボタンを大きく */
-    padding: 15px 30px; /* パディングを増やす */
-    width: 80%; /* 幅を少し広げる */
-    max-width: 300px; /* 最大幅を設定 */
+    margin-top: 15px;
+    font-size: clamp(1.3em, 4vw, 1.8em);
+    padding: clamp(12px, 3vw, 18px) clamp(20px, 5vw, 30px);
+    width: 85%;
+    max-width: 320px;
     box-sizing: border-box;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* 影を濃く */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 15px rgba(211, 47, 47, 0.5);
+    position: relative;
+    overflow: hidden;
 }
+
+#maou-battle-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.15);
+    transition: left 0.3s ease;
+}
+
 #maou-battle-btn:hover:not(:disabled) {
-    background-color: #E57373;
+    background: linear-gradient(135deg, rgba(244, 67, 54, 0.9), rgba(211, 47, 47, 0.9));
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(211, 47, 47, 0.7);
 }
+
+#maou-battle-btn:active:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.4), 0 3px 10px rgba(211, 47, 47, 0.5);
+}
+
 #maou-battle-btn:disabled {
-    background-color: rgba(70, 70, 70, 0.7); /* 無効時の色を暗く */
+    background: linear-gradient(135deg, rgba(70, 70, 70, 0.7), rgba(90, 90, 90, 0.7));
     border-color: #555;
-    color: #bbb;
+    color: #aaa;
+    cursor: not-allowed;
+    box-shadow: none;
 }
 
+/* 全クリア時の魔王戦ボタン演出 */
+#maou-battle-btn:not(:disabled) {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.9), rgba(255, 152, 0, 0.9));
+    border: 3px solid #FFB74D;
+    box-shadow: 0 0 25px rgba(255, 193, 7, 0.7), 0 6px 20px rgba(255, 193, 7, 0.5);
+    animation: maou-unlock 1s ease-in-out infinite;
+}
 
-/* デバッグボタン */
+@keyframes maou-unlock {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 25px rgba(255, 193, 7, 0.7), 0 6px 20px rgba(255, 193, 7, 0.5);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 35px rgba(255, 193, 7, 1), 0 8px 25px rgba(255, 193, 7, 0.7);
+    }
+}
+
+/* ================== デバッグボタン ================== */
 .debug-controls {
-    margin-top: 15px; /* 上の間隔を調整 */
-    margin-bottom: 5px; /* 下の間隔を調整 */
+    margin-top: 15px;
     display: flex;
     justify-content: center;
-    flex-wrap: wrap; /* 小さい画面で折り返す */
+    flex-wrap: wrap;
     width: 100%;
+    gap: 8px;
 }
+
 .debug-controls button {
-    width: auto;
-    display: inline-block;
-    margin: 5px; /* ボタン間の余白を調整 */
     padding: 8px 12px;
-    font-size: 0.8em; /* デバッグボタンは小さく */
+    font-size: 0.85em;
     background-color: rgba(97, 97, 97, 0.7);
-    border-color: #9E9E9E;
+    border: 1px solid #9E9E9E;
+    border-radius: 6px;
     color: white;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
+
 .debug-controls button:hover {
     background-color: #757575;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
 }
 
+.debug-controls button:active {
+    transform: translateY(-1px);
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+}
 
-/* クイズ画面 */
+/* ================== クイズ画面 ================== */
 #quiz-screen {
-    justify-content: space-between; /* コンテンツを上下に配置 */
+    justify-content: space-between;
     flex-grow: 1;
+    gap: 12px;
+    padding: 12px 8px;
 }
 
 .quiz-status {
     display: flex;
     justify-content: space-around;
-    margin-bottom: 10px; /* 間隔を狭める */
-    font-size: 1em;
-    background-color: var(--quiz-element-bg-color);
-    padding: 6px; /* パディングを小さく */
+    gap: 15px;
+    font-size: clamp(0.95em, 3vw, 1.1em);
+    background: linear-gradient(135deg, var(--quiz-element-bg-color), rgba(81, 192, 235, 0.1));
+    padding: 10px 12px;
     border-radius: 8px;
     border: 1px solid var(--quiz-border-color);
     color: var(--text-color);
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.quiz-status p {
+    margin: 0;
+    font-weight: 600;
 }
 
 #quiz-category-title {
-    margin-top: 5px; /* 上部との間隔を調整 */
-    margin-bottom: 10px; /* 下との間隔を調整 */
-    font-size: 1.8em; /* 少し小さく */
+    font-size: clamp(1.6em, 5vw, 2.2em);
     color: var(--accent-color);
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.9), 0 0 10px rgba(249, 128, 252, 0.4);
+    margin: 5px 0 10px 0;
+    letter-spacing: 1px;
 }
 
 .quiz-area {
-    background-color: var(--quiz-element-bg-color);
+    background: linear-gradient(135deg, var(--quiz-element-bg-color), rgba(81, 192, 235, 0.08));
     border-radius: 10px;
-    padding: 10px; /* パディングを減らす */
-    margin-bottom: 10px;
+    padding: 12px;
     position: relative;
-    min-height: 200px; /* ある程度の高さを確保 */
+    min-height: 220px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     flex-grow: 1;
-    border: 1px solid var(--quiz-border-color);
+    border: 2px solid var(--quiz-border-color);
+    box-shadow: inset 0 0 15px rgba(81, 192, 235, 0.1), 0 4px 15px rgba(0, 0, 0, 0.5);
 }
 
 .enemy-area {
     position: absolute;
-    top: 5px; /* 上からの位置 */
-    right: 5px; /* 右からの位置 */
-    width: 70px; /* 敵キャラのサイズをさらに小さく */
-    height: 70px;
+    top: 8px;
+    right: 8px;
+    width: clamp(60px, 12vw, 85px);
+    height: clamp(60px, 12vw, 85px);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 10;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 4px;
+    border: 1px solid rgba(129, 230, 252, 0.3);
 }
 
 .enemy-char {
     max-width: 100%;
     max-height: 100%;
     image-rendering: pixelated;
+    filter: drop-shadow(0 0 4px rgba(249, 128, 252, 0.5));
 }
 
 #question-text {
-    font-size: 1.2em; /* フォントサイズを小さく */
-    margin-top: 60px; /* 敵キャラのスペースを確保 */
-    margin-right: 80px; /* 敵キャラの幅+α分、右から余白を追加 */
-    margin-bottom: 10px; /* 下の間隔を狭める */
-    background-color: rgba(0, 0, 0, 0.6);
-    padding: 8px; /* パディングを小さく */
+    font-size: clamp(1.05em, 3.5vw, 1.35em);
+    margin-top: clamp(65px, 15vw, 90px);
+    margin-right: clamp(70px, 18vw, 100px);
+    margin-bottom: 12px;
+    padding: 12px;
+    background-color: rgba(0, 0, 0, 0.8);
     border-radius: 8px;
     border: 1px solid var(--quiz-border-color);
-    min-height: 70px; /* 最低高さを調整 */
+    min-height: 70px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-grow: 1;
     color: var(--text-color);
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
-    line-height: 1.4; /* 行の高さを調整して詰める */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    line-height: 1.5;
+    font-weight: 600;
 }
 
 .options-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 8px; /* ギャップをさらに小さく */
-    margin-top: 8px; /* 上の間隔を狭める */
+    gap: 10px;
+    margin-top: 10px;
 }
 
 .option-btn {
-    font-size: 0.95em; /* フォントサイズをさらに小さく */
-    padding: 10px 6px; /* パディングを小さく */
-    background-color: var(--quiz-element-bg-color);
-    border: 1px solid var(--quiz-border-color);
-    color: var(--text-color);
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-    height: auto; /* 高さを自動調整 */
-    min-height: 50px; /* 最低高さを確保 */
+    font-size: clamp(0.95em, 2.8vw, 1.1em);
+    padding: clamp(10px, 2.5vw, 14px) clamp(8px, 2vw, 12px);
+    background-color: var(--button-bg-color);
+    border: 2px solid var(--quiz-border-color);
+    border-radius: 8px;
+    color: var(--button-text-color);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+    height: auto;
+    min-height: 55px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.option-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    transition: left 0.3s ease;
+}
+
+.option-btn:hover:not(:disabled) {
+    background-color: var(--button-hover-bg-color);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(129, 230, 252, 0.3);
+}
+
+.option-btn:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(129, 230, 252, 0.2);
+}
+
+.option-btn:disabled {
+    cursor: not-allowed;
 }
 
 .option-btn.correct {
-    background-color: rgba(0, 255, 0, 0.7);
+    background-color: rgba(0, 255, 0, 0.8);
     border-color: var(--option-correct-color);
-    color: var(--option-correct-color);
-    text-shadow: 1px 1px 2px rgba(0, 100, 0, 0.7);
+    color: #000;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+    font-weight: 700;
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.6), inset 0 0 10px rgba(0, 255, 0, 0.2);
+    animation: pulse-correct 0.6s ease;
+}
+
+@keyframes pulse-correct {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
 }
 
 .option-btn.wrong {
-    background-color: rgba(255, 69, 0, 0.7);
+    background-color: rgba(255, 69, 0, 0.8);
     border-color: var(--option-wrong-color);
-    color: var(--option-wrong-color);
-    text-shadow: 1px 1px 2px rgba(100, 0, 0, 0.7);
+    color: #FFF;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+    font-weight: 700;
+    box-shadow: 0 0 15px rgba(255, 69, 0, 0.6), inset 0 0 10px rgba(255, 69, 0, 0.2);
+    animation: shake-wrong 0.4s ease;
+}
+
+@keyframes shake-wrong {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-3px); }
+    75% { transform: translateX(3px); }
 }
 
 #skip-question-btn {
-    margin-top: 10px; /* 上の間隔を狭める */
-    padding: 8px 12px;
-    font-size: 0.8em;
+    margin-top: 12px;
+    padding: 10px 16px;
+    font-size: 0.85em;
     background-color: rgba(76, 175, 80, 0.7);
-    border-color: #66BB6A;
+    border: 1px solid #66BB6A;
+    border-radius: 6px;
     color: white;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 600;
 }
 
 #skip-question-btn:hover {
     background-color: #66BB6A;
+    box-shadow: 0 3px 10px rgba(76, 175, 80, 0.4);
+    transform: translateY(-2px);
 }
 
-/* 結果画面 */
-#result-screen, #maou-win-screen {
-    justify-content: center; /* 中央に配置 */
-    flex-grow: 1;
+#skip-question-btn:active {
+    transform: translateY(0);
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
 }
+
+/* ================== 結果画面 ================== */
+#result-screen, #maou-win-screen {
+    justify-content: center;
+    flex-grow: 1;
+    gap: 12px;
+    padding: 15px;
+}
+
 #result-screen h2, #maou-win-screen h2 {
     color: var(--accent-color);
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-    font-size: 2em; /* 少し小さく */
-    margin-bottom: 15px;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.9), 0 0 10px rgba(249, 128, 252, 0.4);
+    font-size: clamp(1.8em, 5vw, 2.4em);
+    margin: 5px 0 15px 0;
+    letter-spacing: 1px;
 }
 
 #result-screen p, #maou-win-screen p {
-    font-size: 1.1em; /* 少し小さく */
-    margin-bottom: 15px;
+    font-size: clamp(1em, 3.5vw, 1.3em);
+    margin: 8px 0;
     color: var(--text-color);
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    font-weight: 600;
 }
 
 #back-to-main-btn, #restart-game-btn {
-    margin-top: 20px; /* 上の間隔を狭める */
-    background-color: rgba(103, 58, 183, 0.7);
-    border-color: #7E57C2;
+    margin-top: 20px;
+    background: linear-gradient(135deg, rgba(103, 58, 183, 0.8), rgba(126, 87, 194, 0.8));
+    border: 2px solid #7E57C2;
+    border-radius: 8px;
     color: white;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-    padding: 12px 20px; /* パディングを調整 */
-    font-size: 1.1em; /* フォントサイズ調整 */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    padding: clamp(12px, 2.5vw, 16px) clamp(20px, 4vw, 28px);
+    font-size: clamp(1.05em, 3vw, 1.3em);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(103, 58, 183, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+#back-to-main-btn::before, #restart-game-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.15);
+    transition: left 0.3s ease;
 }
 
 #back-to-main-btn:hover, #restart-game-btn:hover {
-    background-color: #7E57C2;
+    background: linear-gradient(135deg, rgba(126, 87, 194, 0.9), rgba(103, 58, 183, 0.9));
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(103, 58, 183, 0.6);
 }
 
-/* 魔王戦勝利画面 */
-#maou-win-screen .hero-char-win {
-    width: 120px; /* 少し小さく */
-    height: 120px;
+#back-to-main-btn:active, #restart-game-btn:active {
+    transform: translateY(-1px);
+    box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.4), 0 3px 10px rgba(103, 58, 183, 0.4);
+}
+
+.hero-char-win {
+    width: clamp(100px, 20vw, 140px);
+    height: clamp(100px, 20vw, 140px);
     display: block;
-    margin: 15px auto; /* 間隔を狭める */
+    margin: 15px auto;
     image-rendering: pixelated;
+    filter: drop-shadow(0 0 8px rgba(249, 128, 252, 0.6));
+    animation: bounce 1s ease-in-out infinite;
 }
 
-/* レスポンシブ対応の調整 */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* ================== レスポンシブ対応 ================== */
+@media (min-width: 480px) {
+    .options-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+    
+    .category-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    #game-container {
+        padding: 25px;
+    }
+}
+
 @media (min-width: 600px) {
     .options-grid {
         grid-template-columns: 1fr 1fr;
     }
-    #main-screen .category-grid {
+    
+    .category-grid {
         grid-template-columns: repeat(3, 1fr);
     }
+    
     #game-container {
-        padding: 30px; /* PCではパディングを増やす */
+        padding: 30px;
     }
+    
     #main-screen h1 {
         font-size: 3.5em;
     }
-    #main-screen h2 {
-        font-size: 1.8em;
+    
+    #main-screen .current-points {
+        font-size: 1.4em;
     }
+    
     .category-btn {
         padding: 12px;
         min-height: 80px;
+        font-size: 1.1em;
     }
+    
     #maou-battle-btn {
         font-size: 1.8em;
         padding: 18px 35px;
-        max-width: 350px;
     }
+    
     .enemy-area {
-        width: 80px;
-        height: 80px;
-        top: 10px;
-        right: 10px;
+        width: 90px;
+        height: 90px;
     }
+    
     #question-text {
         font-size: 1.4em;
-        margin-top: 40px;
-        margin-right: 90px;
-        padding: 12px;
         min-height: 80px;
     }
+    
     .option-btn {
         font-size: 1.05em;
-        padding: 12px 8px;
         min-height: 60px;
     }
+    
     #quiz-category-title {
         font-size: 2em;
     }
 }
 
 @media (min-width: 900px) {
-    #main-screen .category-grid {
+    .category-grid {
         grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
     }
+    
     #main-screen h1 {
         font-size: 4em;
     }
-    #main-screen h2 {
-        font-size: 2em;
+    
+    #main-screen .current-points {
+        font-size: 1.5em;
     }
+    
+    #game-container {
+        padding: 35px;
+    }
+    
     #maou-battle-btn {
         font-size: 2em;
         padding: 20px 40px;
-        max-width: 400px;
     }
+    
     .enemy-area {
         width: 100px;
         height: 100px;
-        top: 15px;
-        right: 15px;
     }
+    
     #question-text {
         font-size: 1.6em;
-        margin-top: 50px;
-        margin-right: 110px;
-        padding: 15px;
         min-height: 90px;
     }
+    
     .option-btn {
         font-size: 1.1em;
-        padding: 15px 10px;
         min-height: 70px;
     }
 }
